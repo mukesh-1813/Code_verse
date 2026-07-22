@@ -48,11 +48,21 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "django_filters",
     "drf_spectacular",
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 LOCAL_APPS = [
     "apps.common",
     "apps.accounts",
+
+    "apps.coding.problems",
+    "apps.coding.submissions",
+    "apps.coding.contests",
+    "apps.coding.leaderboard",
+
+    "apps.ai",
+    "apps.analytics",
+    "apps.notifications",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

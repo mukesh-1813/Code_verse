@@ -1,8 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 
-from codeverse_backend.apps.common.choices import UserRole
-from codeverse_backend.apps.common.models import BaseModel
+from apps.common.choices import UserRole
+from apps.common.models import BaseModel
 
 from .managers import UserManager
 
