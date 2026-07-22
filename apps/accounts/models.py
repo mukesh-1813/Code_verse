@@ -1,17 +1,17 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 
+from codeverse_backend.apps.common.choices import UserRole
+from codeverse_backend.apps.common.models import BaseModel
+
 from .managers import UserManager
 
 
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     
-    class Role(models.TextChoices):
-        STUDENT = "STUDENT", "Student"
-        FACULTY = "FACULTY", "Faculty"
-        ADMIN = "ADMIN", "Admin"
+    
     email = models.EmailField(unique=True)
 
     first_name = models.CharField(max_length=100)
@@ -20,8 +20,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     role = models.CharField(
         max_length=20,
-        choices=Role.choices,
-        default=Role.STUDENT,
+        choices=UserRole.choices,
+        default=UserRole.STUDENT,
     )
 
     is_active = models.BooleanField(default=True)
