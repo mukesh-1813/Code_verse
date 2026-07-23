@@ -1,6 +1,6 @@
 from django.db.models import Prefetch
 
-from .models import Problem, TestCase
+from .models import Example, Problem, TestCase
 
 
 class ProblemSelector:
@@ -45,3 +45,17 @@ class ProblemSelector:
             )
             .first()
         )
+class ExampleSelector:
+
+    @staticmethod
+    def get_examples(problem):
+        return (
+            Example.objects.filter(problem=problem)
+            .order_by("order")
+        )
+
+    @staticmethod
+    def get_example_by_id(example_id):
+        return Example.objects.filter(
+            id=example_id
+        ).first()

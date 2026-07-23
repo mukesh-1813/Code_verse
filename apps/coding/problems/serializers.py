@@ -1,3 +1,4 @@
+from attr import attrs
 from rest_framework import serializers
 
 from .models import (
@@ -6,8 +7,9 @@ from .models import (
     Example,
     TestCase,
 ) 
-class ProblemTagSerializer(serializers.ModelSerializer):
 
+
+class ProblemTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProblemTag
         fields = (
@@ -15,8 +17,9 @@ class ProblemTagSerializer(serializers.ModelSerializer):
             "name",
             "slug",
         )
-class ExampleSerializer(serializers.ModelSerializer):
 
+
+class ExampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Example
         fields = (
@@ -26,8 +29,45 @@ class ExampleSerializer(serializers.ModelSerializer):
             "explanation",
             "order",
         )
-class TestCaseSerializer(serializers.ModelSerializer):
 
+
+class ExampleCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Example
+        fields = (
+            "input",
+            "output",
+            "explanation",
+            "order",
+        )
+
+    def validate(self, attrs):
+        problem = self.context.get("problem")
+
+        order = attrs.get(
+            "order",
+            getattr(self.instance, "order", None),
+        )
+
+        queryset = Example.objects.filter(
+            problem=problem,
+            order=order,
+        )
+
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            raise serializers.ValidationError(
+                {
+                    "order": "An example with this order already exists."
+                }
+            )
+
+        return attrs
+
+
+class TestCaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestCase
         fields = (
@@ -36,8 +76,9 @@ class TestCaseSerializer(serializers.ModelSerializer):
             "expected_output",
             "order",
         )
-class ProblemSerializer(serializers.ModelSerializer):
 
+
+class ProblemSerializer(serializers.ModelSerializer):
     difficulty = serializers.CharField(
         source="get_difficulty_display",
         read_only=True,
@@ -51,8 +92,9 @@ class ProblemSerializer(serializers.ModelSerializer):
             "slug",
             "difficulty",
         )
-class ProblemDetailSerializer(serializers.ModelSerializer):
 
+
+class ProblemDetailSerializer(serializers.ModelSerializer):
     difficulty = serializers.CharField(
         source="get_difficulty_display",
         read_only=True,
@@ -94,6 +136,8 @@ class ProblemDetailSerializer(serializers.ModelSerializer):
             sample_test_cases,
             many=True,
         ).data
+
+
 class ProblemCreateUpdateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=ProblemTag.objects.all(),
@@ -118,12 +162,10 @@ class ProblemCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_title(self, value):
         value = value.strip()
-
         if len(value) < 3:
             raise serializers.ValidationError(
                 "Problem title must be at least 3 characters."
             )
-
         return value
 
     def validate_time_limit(self, value):

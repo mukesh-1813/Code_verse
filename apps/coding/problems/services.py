@@ -2,7 +2,40 @@ from django.db import transaction
 
 from .models import Problem
 
+from django.db import transaction
 
+from .models import Example
+
+
+class ExampleService:
+
+    @staticmethod
+    @transaction.atomic
+    def create_example(problem, validated_data):
+
+        return Example.objects.create(
+            problem=problem,
+            **validated_data,
+        )
+
+    @staticmethod
+    @transaction.atomic
+    def update_example(example, validated_data):
+
+        for field, value in validated_data.items():
+            setattr(example, field, value)
+
+        example.save()
+
+        return example
+
+    @staticmethod
+    @transaction.atomic
+    def delete_example(example):
+        example.delete()
+
+
+        
 class ProblemService:
 
     @staticmethod

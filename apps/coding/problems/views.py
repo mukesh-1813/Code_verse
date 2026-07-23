@@ -3,17 +3,102 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from apps.common.responses import ApiResponse
 
-from .models import Problem
+from .models import Problem, Example
 from .permissions import IsProblemManager
-from .selectors import ProblemSelector
+from .selectors import (
+    ProblemSelector,
+    ExampleSelector,
+)
 from .serializers import (
     ProblemSerializer,
     ProblemDetailSerializer,
     ProblemCreateUpdateSerializer,
+    ExampleSerializer,
+    ExampleCreateUpdateSerializer,
 )
-from .services import ProblemService
+from .services import (
+    ProblemService,
+    ExampleService,
+)
 
 
+class ExampleViewSet(viewsets.ViewSet):
+
+    permission_classes = [IsProblemManager]
+
+    def list(self, request, problem_slug=None):
+
+        problem = ProblemSelector.get_problem_by_slug(problem_slug)
+
+        examples = ExampleSelector.get_examples(problem)
+
+        serializer = ExampleSerializer(
+            examples,
+            many=True,
+        )
+
+        return ApiResponse.success(
+            data=serializer.data,
+        )
+
+    def create(self, request, problem_slug=None):
+
+        problem = ProblemSelector.get_problem_by_slug(problem_slug)
+
+        serializer = ExampleCreateUpdateSerializer(
+            data=request.data,
+            context={
+                "problem": problem,
+            },
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        example = ExampleService.create_example(
+            problem,
+            serializer.validated_data,
+        )
+
+        return ApiResponse.success(
+            message="Example created successfully.",
+            data=ExampleSerializer(example).data,
+            status_code=status.HTTP_201_CREATED,
+        )
+
+    def partial_update(self, request, pk=None):
+
+        example = ExampleSelector.get_example_by_id(pk)
+
+        serializer = ExampleCreateUpdateSerializer(
+            example,
+            data=request.data,
+            partial=True,
+            context={
+                "problem": example.problem,
+            },
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        example = ExampleService.update_example(
+            example,
+            serializer.validated_data,
+        )
+
+        return ApiResponse.success(
+            message="Example updated successfully.",
+            data=ExampleSerializer(example).data,
+        )
+
+    def destroy(self, request, pk=None):
+
+        example = ExampleSelector.get_example_by_id(pk)
+
+        ExampleService.delete_example(example)
+
+        return ApiResponse.success(
+            message="Example deleted successfully.",
+        )
 class ProblemViewSet(viewsets.ModelViewSet):
 
     lookup_field = "slug"
