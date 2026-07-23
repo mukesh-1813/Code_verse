@@ -13,4 +13,10 @@ urlpatterns = [
     ),
 
     path("api/auth/", include("apps.accounts.urls")),
+
+    # Change this
+    path(
+        "api/problems/",
+        include("apps.coding.problems.urls"),
+    ),
 ]
