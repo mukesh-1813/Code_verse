@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, CheckCircle2, Circle, MinusCircle } from "lucide-react";
 import Loader from "../../components/common/Loader";
-import { problemService } from "../../services/placeholderServices";
+import { problemService } from "../../services/problemService";
 
 const difficultyBadge = {
   Easy: "badge-easy",
@@ -24,9 +24,9 @@ const Problems = () => {
 
   useEffect(() => {
     problemService.list().then((res) => {
-      setProblems(res.data.results);
-      setLoading(false);
-    });
+  setProblems(res.data);
+  setLoading(false);
+});
   }, []);
 
   const filtered = problems.filter(
@@ -86,10 +86,12 @@ const Problems = () => {
             <tbody>
               {filtered.map((p) => (
                 <tr key={p.id} className="border-b border-ink-50 last:border-0 hover:bg-ink-50/40">
-                  <td className="px-5 py-3.5">{statusIcon[p.status]}</td>
+                  <td className="px-5 py-3.5">
+  <Circle className="h-4 w-4 text-ink-300" />
+</td>
                   <td className="px-5 py-3.5">
                     <Link
-                      to={`/student/problems/${p.id}`}
+                      to={`/student/problems/${p.slug}`}
                       className="font-medium text-ink-800 hover:text-indigo-600"
                     >
                       {p.title}
@@ -100,7 +102,7 @@ const Problems = () => {
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex flex-wrap gap-1.5">
-                      {p.tags.map((tag) => (
+                      {p.tags?.map((tag) => (
                         <span key={tag} className="badge bg-ink-50 text-ink-500">
                           {tag}
                         </span>

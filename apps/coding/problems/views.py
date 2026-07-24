@@ -12,6 +12,7 @@ from .serializers import (
     ProblemCreateUpdateSerializer,
 )
 from .services import ProblemService
+from apps.common.choices import UserRole
 
 
 class ProblemViewSet(viewsets.ModelViewSet):
@@ -34,8 +35,8 @@ class ProblemViewSet(viewsets.ModelViewSet):
             self.request.user.is_authenticated
             and self.request.user.role
             in (
-                self.request.user.Role.ADMIN,
-                self.request.user.Role.FACULTY,
+               UserRole.ADMIN,
+               UserRole.FACULTY,
             )
         ):
             return Problem.objects.prefetch_related(
@@ -58,20 +59,9 @@ class ProblemViewSet(viewsets.ModelViewSet):
             return ProblemDetailSerializer
 
         return ProblemSerializer
-
     def get_object(self):
-        if (
-            self.request.user.is_authenticated
-            and self.request.user.role
-            in (
-                self.request.user.Role.ADMIN,
-                self.request.user.Role.FACULTY,
-            )
-        ):
-            return super().get_object()
-
         problem = ProblemSelector.get_problem_by_slug(
-            self.kwargs["slug"]
+        self.kwargs["slug"]
         )
 
         if problem is None:

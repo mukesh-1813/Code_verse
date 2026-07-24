@@ -72,7 +72,7 @@ function App() {
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student/courses" element={<StudentCourses />} />
         <Route path="/student/problems" element={<StudentProblems />} />
-        <Route path="/student/problems/:id" element={<StudentProblemDetail />} />
+        <Route path="/student/problems/:slug" element={<StudentProblemDetail />} />
         <Route path="/student/playground" element={<StudentPlayground />} />
         <Route path="/student/ai-tutor" element={<StudentAITutor />} />
         <Route path="/student/contests" element={<StudentContests />} />

@@ -3,12 +3,18 @@ import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Play, Send, Sparkles, Loader2 } from "lucide-react";
 import Loader from "../../components/common/Loader";
-import { problemService } from "../../services/placeholderServices";
+import { problemService } from "../../services/problemService";
 
 const languages = ["JavaScript", "Python", "C++", "Java", "C"];
 
 const ProblemDetail = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
+
+useEffect(() => {
+  problemService.get(slug).then((res) => {
+    setProblem(res.data);
+  });
+}, [slug]);
   const [problem, setProblem] = useState(null);
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("JavaScript");
@@ -16,13 +22,6 @@ const ProblemDetail = () => {
   const [running, setRunning] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [tab, setTab] = useState("description");
-
-  useEffect(() => {
-    problemService.get(id).then((res) => {
-      setProblem(res.data);
-      setCode(res.data.starterCode);
-    });
-  }, [id]);
 
   if (!problem) return <Loader />;
 
@@ -37,7 +36,7 @@ const ProblemDetail = () => {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const { data } = await problemService.submit(id, { code, language });
+      const { data } = await problemService.submit(slug, { code, language });
       toast.success(`Verdict: ${data.verdict}`);
     } finally {
       setSubmitting(false);
@@ -69,26 +68,34 @@ const ProblemDetail = () => {
                 <span className="badge-easy">{problem.difficulty}</span>
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {problem.tags.map((t) => (
-                  <span key={t} className="badge bg-ink-50 text-ink-500">{t}</span>
-                ))}
+                {problem.tags?.map((tag) => (
+  <span
+    key={tag.id || tag.name}
+    className="badge bg-ink-50 text-ink-500"
+  >
+    {tag.name || tag}
+  </span>
+))}
               </div>
-              <p className="mt-4 text-sm leading-relaxed text-ink-600">{problem.statement}</p>
+              <div
+  className="mt-4 prose max-w-none text-sm text-ink-600"
+  dangerouslySetInnerHTML={{ __html: problem.description }}
+/>
 
-              <h3 className="mt-6 text-sm font-semibold text-ink-800">Examples</h3>
+              {/* <h3 className="mt-6 text-sm font-semibold text-ink-800">Examples</h3>
               {problem.examples.map((ex, i) => (
                 <div key={i} className="mt-2 rounded-xl bg-ink-50 p-3 font-mono text-xs text-ink-600">
                   <p><span className="text-ink-400">Input:</span> {ex.input}</p>
                   <p><span className="text-ink-400">Output:</span> {ex.output}</p>
                 </div>
-              ))}
+              ))} */}
 
-              <h3 className="mt-6 text-sm font-semibold text-ink-800">Constraints</h3>
+              {/* <h3 className="mt-6 text-sm font-semibold text-ink-800">Constraints</h3>
               <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-ink-500">
                 {problem.constraints.map((c, i) => (
                   <li key={i} className="font-mono text-xs">{c}</li>
                 ))}
-              </ul>
+              </ul> */}
             </>
           )}
           {tab === "hints" && (
