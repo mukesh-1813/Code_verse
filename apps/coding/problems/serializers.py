@@ -16,7 +16,6 @@ class ProblemTagSerializer(serializers.ModelSerializer):
             "slug",
         )
 class ExampleSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Example
         fields = (

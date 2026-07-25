@@ -4,6 +4,8 @@ import { Search, CheckCircle2, Circle, MinusCircle } from "lucide-react";
 import Loader from "../../components/common/Loader";
 import { problemService } from "../../services/problemService";
 
+
+
 const difficultyBadge = {
   Easy: "badge-easy",
   Medium: "badge-medium",
@@ -17,17 +19,26 @@ const statusIcon = {
 };
 
 const Problems = () => {
+  const [page, setPage] = useState(1);
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [difficulty, setDifficulty] = useState("All");
+  const [count, setCount] = useState(0);
+  const [next, setNext] = useState(null);
+  const [previous, setPrevious] = useState(null);
 
-  useEffect(() => {
-    problemService.list().then((res) => {
-  setProblems(res.data);
-  setLoading(false);
-});
-  }, []);
+useEffect(() => {
+  setLoading(true);
+
+  problemService.list(page).then((res) => {
+    setProblems(res.data.results);
+    setCount(res.data.count);
+    setNext(res.data.next);
+    setPrevious(res.data.previous);
+    setLoading(false);
+  });
+}, [page]);
 
   const filtered = problems.filter(
     (p) =>
@@ -114,6 +125,27 @@ const Problems = () => {
               ))}
             </tbody>
           </table>
+          <div className="flex justify-between items-center mt-6">
+  <button
+    disabled={!previous}
+    onClick={() => setPage((p) => p - 1)}
+    className="px-4 py-2 rounded bg-gray-200 disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <span>
+    Page {page} of {Math.ceil(count / 10)}
+  </span>
+
+  <button
+    disabled={!next}
+    onClick={() => setPage((p) => p + 1)}
+    className="px-4 py-2 rounded bg-indigo-600 text-white disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
         </div>
       )}
     </div>
