@@ -5,10 +5,9 @@ from .models import (
     ProblemTag,
     Example,
     TestCase,
-)
-
-
+) 
 class ProblemTagSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = ProblemTag
         fields = (
@@ -16,9 +15,8 @@ class ProblemTagSerializer(serializers.ModelSerializer):
             "name",
             "slug",
         )
-
-
 class ExampleSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Example
         fields = (
@@ -28,21 +26,18 @@ class ExampleSerializer(serializers.ModelSerializer):
             "explanation",
             "order",
         )
-
-
 class TestCaseSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = TestCase
         fields = (
             "id",
             "input",
             "expected_output",
-            "is_sample",
             "order",
         )
-
-
 class ProblemSerializer(serializers.ModelSerializer):
+
     difficulty = serializers.CharField(
         source="get_difficulty_display",
         read_only=True,
@@ -56,16 +51,23 @@ class ProblemSerializer(serializers.ModelSerializer):
             "slug",
             "difficulty",
         )
-
-
 class ProblemDetailSerializer(serializers.ModelSerializer):
+
     difficulty = serializers.CharField(
         source="get_difficulty_display",
         read_only=True,
     )
 
-    tags = ProblemTagSerializer(many=True, read_only=True)
-    examples = ExampleSerializer(many=True, read_only=True)
+    tags = ProblemTagSerializer(
+        many=True,
+        read_only=True,
+    )
+
+    examples = ExampleSerializer(
+        many=True,
+        read_only=True,
+    )
+
     sample_test_cases = serializers.SerializerMethodField()
 
     class Meta:
@@ -88,9 +90,10 @@ class ProblemDetailSerializer(serializers.ModelSerializer):
 
     def get_sample_test_cases(self, obj):
         sample_test_cases = obj.test_cases.filter(is_sample=True)
-        return TestCaseSerializer(sample_test_cases, many=True).data
-
-
+        return TestCaseSerializer(
+            sample_test_cases,
+            many=True,
+        ).data
 class ProblemCreateUpdateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=ProblemTag.objects.all(),
@@ -115,10 +118,12 @@ class ProblemCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_title(self, value):
         value = value.strip()
+
         if len(value) < 3:
             raise serializers.ValidationError(
                 "Problem title must be at least 3 characters."
             )
+
         return value
 
     def validate_time_limit(self, value):
@@ -134,36 +139,3 @@ class ProblemCreateUpdateSerializer(serializers.ModelSerializer):
                 "Memory limit must be greater than 0."
             )
         return value
-
-
-class TestCaseCreateUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TestCase
-        fields = (
-            "input",
-            "expected_output",
-            "is_sample",
-            "order",
-        )
-
-    def validate_order(self, value):
-        if value < 1:
-            raise serializers.ValidationError(
-                "Order must be greater than 0."
-            )
-        return value
-
-    def validate(self, attrs):
-        problem = self.context.get("problem")
-        order = attrs.get("order", getattr(self.instance, "order", None))
-
-        queryset = TestCase.objects.filter(problem=problem, order=order)
-        if self.instance:
-            queryset = queryset.exclude(pk=self.instance.pk)
-
-        if queryset.exists():
-            raise serializers.ValidationError(
-                {"order": "A test case with this order already exists."}
-            )
-
-        return attrs
