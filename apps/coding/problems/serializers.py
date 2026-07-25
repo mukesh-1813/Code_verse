@@ -25,6 +25,17 @@ class ExampleSerializer(serializers.ModelSerializer):
             "explanation",
             "order",
         )
+class ExampleCreateUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Example
+        fields = (
+            "input",
+            "output",
+            "explanation",
+            "order",
+        )
+
 class TestCaseSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -34,6 +45,16 @@ class TestCaseSerializer(serializers.ModelSerializer):
             "input",
             "expected_output",
             "order",
+        )
+class TestCaseCreateUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TestCase
+        fields = (
+            "input",
+            "expected_output",
+            "order",
+            "is_sample",
         )
 class ProblemSerializer(serializers.ModelSerializer):
 

@@ -19,4 +19,13 @@ urlpatterns = [
         "api/problems/",
         include("apps.coding.problems.urls"),
     ),
+   path(
+    "api/v1/judge/",
+    include("apps.coding.judge.urls"),
+),
+path(
+    "api/v1/",
+    include("apps.coding.submissions.urls"),
+),
+
 ]
