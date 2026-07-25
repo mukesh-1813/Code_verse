@@ -8,15 +8,14 @@ from .services import PistonService
 
 class RunCodeAPIView(APIView):
     permission_classes = []
+
     def post(self, request):
         serializer = RunCodeSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
 
-        result = PistonService.execute(
-            **serializer.validated_data
-        )
+        if not serializer.is_valid():
+            print(serializer.errors)   # <-- Add this
+            return Response(serializer.errors, status=400)
 
-        return Response(
-            result,
-            status=status.HTTP_200_OK,
-        )
+        result = PistonService.execute(**serializer.validated_data)
+
+        return Response(result)

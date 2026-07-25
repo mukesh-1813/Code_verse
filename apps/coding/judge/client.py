@@ -1,4 +1,5 @@
 import requests
+import json
 from django.conf import settings
 
 
@@ -27,13 +28,21 @@ class PistonClient:
             "run_timeout": run_timeout,
         }
 
-        try:
-            response = requests.post(
-                f"{self.base_url}/execute",
-                json=payload,
-                timeout=self.timeout,
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as exc:
-            raise RuntimeError(f"Piston execution failed: {exc}") from exc
+        print("\n========== PISTON REQUEST ==========")
+        print(json.dumps(payload, indent=4))
+        print("====================================")
+
+        response = requests.post(
+            f"{self.base_url}/execute",
+            json=payload,
+            timeout=self.timeout,
+        )
+
+        print("\n========== PISTON RESPONSE ==========")
+        print("Status:", response.status_code)
+        print(response.text)
+        print("=====================================\n")
+
+        response.raise_for_status()
+
+        return response.json()
