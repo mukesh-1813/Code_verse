@@ -181,3 +181,60 @@ class ProblemCreateUpdateSerializer(serializers.ModelSerializer):
                 "Memory limit must be greater than 0."
             )
         return value
+class TestCaseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TestCase
+        fields = (
+            "id",
+            "input",
+            "expected_output",
+            "is_sample",
+            "order",
+        )
+
+
+class TestCaseCreateUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TestCase
+        fields = (
+            "input",
+            "expected_output",
+            "is_sample",
+            "order",
+        )
+
+    def validate_order(self, value):
+        if value < 1:
+            raise serializers.ValidationError(
+                "Order must be greater than 0."
+            )
+        return value
+
+    def validate(self, attrs):
+
+        problem = self.context.get("problem")
+
+        order = attrs.get(
+            "order",
+            getattr(self.instance, "order", None),
+        )
+
+        queryset = TestCase.objects.filter(
+            problem=problem,
+            order=order,
+        )
+
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            raise serializers.ValidationError(
+                {
+                    "order":
+                    "A test case with this order already exists."
+                }
+            )
+
+        return attrs

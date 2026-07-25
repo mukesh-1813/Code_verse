@@ -59,3 +59,19 @@ class ExampleSelector:
         return Example.objects.filter(
             id=example_id
         ).first()
+from django.shortcuts import get_object_or_404
+from .models import TestCase
+
+
+class TestCaseSelector:
+
+    @staticmethod
+    def get_test_cases(problem):
+        return problem.test_cases.all()
+
+    @staticmethod
+    def get_test_case_by_id(pk):
+        return get_object_or_404(
+            TestCase,
+            pk=pk,
+        )
