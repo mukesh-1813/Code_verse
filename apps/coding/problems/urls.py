@@ -7,12 +7,16 @@ from .views import (
     TestCaseViewSet,
 )
 
-
 router = DefaultRouter()
-router.register("", ProblemViewSet, basename="problems")
 
-urlpatterns = router.urls + [
+router.register(
+    "",
+    ProblemViewSet,
+    basename="problems",
+)
 
+urlpatterns = [
+    # Example routes
     path(
         "<slug:problem_slug>/examples/",
         ExampleViewSet.as_view(
@@ -23,7 +27,6 @@ urlpatterns = router.urls + [
         ),
         name="problem-examples",
     ),
-
     path(
         "examples/<int:pk>/",
         ExampleViewSet.as_view(
@@ -34,20 +37,29 @@ urlpatterns = router.urls + [
         ),
         name="example-detail",
     ),
-       path(
+
+    # Test case routes
+    path(
         "<slug:problem_slug>/test-cases/",
-        TestCaseViewSet.as_view({
-            "get": "list",
-            "post": "create",
-        }),
+        TestCaseViewSet.as_view(
+            {
+                "get": "list",
+                "post": "create",
+            }
+        ),
         name="test-case-list-create",
     ),
-      path(
+    path(
         "test-cases/<int:pk>/",
-        TestCaseViewSet.as_view({
-            "patch": "partial_update",
-            "delete": "destroy",
-        }),
+        TestCaseViewSet.as_view(
+            {
+                "patch": "partial_update",
+                "delete": "destroy",
+            }
+        ),
         name="test-case-detail",
     ),
 ]
+
+# Combine router URLs with custom paths
+urlpatterns += router.urls

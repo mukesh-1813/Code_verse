@@ -5,6 +5,7 @@ from apps.common.choices import UserRole
 from apps.common.models import BaseModel
 
 from .managers import UserManager
+from apps.common.choices import UserRole
 
 
 

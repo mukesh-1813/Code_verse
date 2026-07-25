@@ -34,11 +34,6 @@ class CustomUserAdmin(UserAdmin):
         "last_name",
     )
 
-    readonly_fields = (
-        "last_login",
-        "date_joined",
-    )
-
     fieldsets = (
         (
             None,

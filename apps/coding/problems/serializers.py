@@ -1,4 +1,3 @@
-from attr import attrs
 from rest_framework import serializers
 
 from .models import (
@@ -6,7 +5,7 @@ from .models import (
     ProblemTag,
     Example,
     TestCase,
-) 
+)
 
 
 class ProblemTagSerializer(serializers.ModelSerializer):
@@ -31,42 +30,6 @@ class ExampleSerializer(serializers.ModelSerializer):
         )
 
 
-class ExampleCreateUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Example
-        fields = (
-            "input",
-            "output",
-            "explanation",
-            "order",
-        )
-
-    def validate(self, attrs):
-        problem = self.context.get("problem")
-
-        order = attrs.get(
-            "order",
-            getattr(self.instance, "order", None),
-        )
-
-        queryset = Example.objects.filter(
-            problem=problem,
-            order=order,
-        )
-
-        if self.instance:
-            queryset = queryset.exclude(pk=self.instance.pk)
-
-        if queryset.exists():
-            raise serializers.ValidationError(
-                {
-                    "order": "An example with this order already exists."
-                }
-            )
-
-        return attrs
-
-
 class TestCaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestCase
@@ -74,6 +37,7 @@ class TestCaseSerializer(serializers.ModelSerializer):
             "id",
             "input",
             "expected_output",
+            "is_sample",
             "order",
         )
 
@@ -100,16 +64,8 @@ class ProblemDetailSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
-    tags = ProblemTagSerializer(
-        many=True,
-        read_only=True,
-    )
-
-    examples = ExampleSerializer(
-        many=True,
-        read_only=True,
-    )
-
+    tags = ProblemTagSerializer(many=True, read_only=True)
+    examples = ExampleSerializer(many=True, read_only=True)
     sample_test_cases = serializers.SerializerMethodField()
 
     class Meta:
@@ -132,10 +88,7 @@ class ProblemDetailSerializer(serializers.ModelSerializer):
 
     def get_sample_test_cases(self, obj):
         sample_test_cases = obj.test_cases.filter(is_sample=True)
-        return TestCaseSerializer(
-            sample_test_cases,
-            many=True,
-        ).data
+        return TestCaseSerializer(sample_test_cases, many=True).data
 
 
 class ProblemCreateUpdateSerializer(serializers.ModelSerializer):
@@ -181,21 +134,9 @@ class ProblemCreateUpdateSerializer(serializers.ModelSerializer):
                 "Memory limit must be greater than 0."
             )
         return value
-class TestCaseSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = TestCase
-        fields = (
-            "id",
-            "input",
-            "expected_output",
-            "is_sample",
-            "order",
-        )
 
 
 class TestCaseCreateUpdateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = TestCase
         fields = (
@@ -213,28 +154,16 @@ class TestCaseCreateUpdateSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-
         problem = self.context.get("problem")
+        order = attrs.get("order", getattr(self.instance, "order", None))
 
-        order = attrs.get(
-            "order",
-            getattr(self.instance, "order", None),
-        )
-
-        queryset = TestCase.objects.filter(
-            problem=problem,
-            order=order,
-        )
-
+        queryset = TestCase.objects.filter(problem=problem, order=order)
         if self.instance:
             queryset = queryset.exclude(pk=self.instance.pk)
 
         if queryset.exists():
             raise serializers.ValidationError(
-                {
-                    "order":
-                    "A test case with this order already exists."
-                }
+                {"order": "A test case with this order already exists."}
             )
 
         return attrs
