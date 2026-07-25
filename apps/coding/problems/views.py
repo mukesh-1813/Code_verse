@@ -10,6 +10,11 @@ from .serializers import (
     ProblemSerializer,
     ProblemDetailSerializer,
     ProblemCreateUpdateSerializer,
+    ExampleSerializer,  
+    ExampleCreateUpdateSerializer,
+    TestCaseSerializer,
+    TestCaseCreateUpdateSerializer,
+
 )
 from .services import ProblemService
 from apps.common.choices import UserRole
